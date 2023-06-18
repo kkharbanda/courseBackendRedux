@@ -9,6 +9,7 @@ const ResetPassword = () => {
   const [password, setPassword] = useState('');
 
   const params = useParams();
+  // eslint-disable-next-line
   const navigate = useNavigate();
 
   const { loading, message, error } = useSelector(state => state.profile);
@@ -27,6 +28,7 @@ const ResetPassword = () => {
     if (message) {
       toast.success(message);
       dispatch({ type: 'clearMessage' });
+      // eslint-disable-next-line
       navigate('/login');
     }
   }, [dispatch, error, message]);

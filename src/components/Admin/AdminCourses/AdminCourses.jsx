@@ -16,54 +16,77 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import React, { useState } from 'react';
-
+import { useEffect } from 'react';
 import { RiDeleteBin7Fill } from 'react-icons/ri';
-
+import { useDispatch, useSelector } from 'react-redux';
+import cursor from '../../../assets/images/cursor.png';
 import Sidebar from '../Sidebar';
 import CourseModal from './CourseModal';
-import cursor from '../../../assets/images/cursor.png';
-
-
+import {
+  getAllCourses,
+  getCourseLectures,
+} from '../../../redux/actions/course';
+import {
+  addLecture,
+  deleteCourse,
+  deleteLecture,
+} from '../../../redux/actions/admin';
+import toast from 'react-hot-toast';
 
 const AdminCourses = () => {
-  
+  const { courses, lectures } = useSelector(state => state.course);
+
+  const { loading, error, message } = useSelector(state => state.admin);
+
+  const dispatch = useDispatch();
+
   const { isOpen, onClose, onOpen } = useDisclosure();
-// eslint-disable-next-line
+
   const [courseId, setCourseId] = useState('');
-  // eslint-disable-next-line
   const [courseTitle, setCourseTitle] = useState('');
-  const courses = [{
-    _id : "123",
-    poster :{
-      url :"url"
-    },
-    title :"title",
-    catrgory :"category",
-    createBy : String(new Date())
-  }];
-  const loading = false ;
-  const lectures = []
 
   const coureDetailsHandler = (courseId, title) => {
-   
+    dispatch(getCourseLectures(courseId));
     onOpen();
-    
+    setCourseId(courseId);
+    setCourseTitle(title);
   };
   const deleteButtonHandler = courseId => {
     console.log(courseId);
-    
+    dispatch(deleteCourse(courseId));
   };
 
-  const deleteLectureButtonHandler =  (courseId, lectureId) => {
-    
+  const deleteLectureButtonHandler = async (courseId, lectureId) => {
+    await dispatch(deleteLecture(courseId, lectureId));
+    dispatch(getCourseLectures(courseId));
   };
 
-  const addLectureHandler =  (e, courseId, title, description, video) => {
+  const addLectureHandler = async (e, courseId, title, description, video) => {
     e.preventDefault();
-    
+    const myForm = new FormData();
+
+    myForm.append('title', title);
+    myForm.append('description', description);
+    myForm.append('file', video);
+
+    await dispatch(addLecture(courseId, myForm));
+    dispatch(getCourseLectures(courseId));
   };
 
-  
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+      dispatch({ type: 'clearError' });
+    }
+
+    if (message) {
+      toast.success(message);
+      dispatch({ type: 'clearMessage' });
+    }
+
+    dispatch(getAllCourses());
+  }, [dispatch, error, message, onClose]);
+
   return (
     <Grid
       css={{

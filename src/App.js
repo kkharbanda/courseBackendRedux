@@ -179,7 +179,7 @@ function App() {
               }
             />
             <Route
-              path="/admin/createcourse"
+              path="/admin/createcourses"
               element={
                 <ProtectedRoute
                   adminRoute={true}
